@@ -9,6 +9,15 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
+# Hide default Streamlit elements
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 # Set page config first (must be the first Streamlit command)
 st.set_page_config(
     page_title="Software Ransum Sapi Perah",
