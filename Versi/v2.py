@@ -13,16 +13,14 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 st.set_page_config(
     page_title="Software Ransum Sapi Perah",
     page_icon="🐄",
+    layout="wide"
 )
-
-# Initialize kebutuhan to None
-kebutuhan = None
 
 # Data kebutuhan nutrisi sapi perah
 data = {
     'Berat Badan (kg)': [350, 350, 350, 350, 450, 450, 450, 450, 600, 600, 600, 600],
     'Produksi Susu (L/hari)': [15, 20, 25, 30, 15, 20, 25, 30, 15, 20, 25, 30],
-    'PK (%BK)': [16.0, 0.7, 17.0, 0.7, 15.0, 0.0, 16.0, 0.7, 0.6, 15.0, 0.6, 16.0],
+    'PK (%BK)': [16.0, 0.7, 17.0, 0.7, 15.0, 0.6, 16.0, 0.7, 0.6, 15.0, 0.6, 16.0],
     'SK (%BK)': [18.0, 18.0, 17.0, 16.0, 19.0, 18.0, 17.0, 16.0, 19.0, 18.0, 17.0, 16.0],
     'NDF (%BK)': [32.0, 31.0, 30.0, 29.0, 33.0, 32.0, 31.0, 30.0, 34.0, 33.0, 32.0, 31.0],
     'ADF (%BK)': [21.0, 20.0, 19.0, 18.0, 22.0, 21.0, 20.0, 19.0, 23.0, 22.0, 21.0, 20.0],
@@ -34,44 +32,67 @@ data = {
     'NEl (kkal)': [15000.0, 16000.0, 17000.0, 18000.0, 15500.0, 16500.0, 17500.0, 18500.0, 16000.0, 17000.0, 18000.0, 19000.0],
     'TDN (%)': [65.0, 66.0, 67.0, 68.0, 65.0, 66.0, 67.0, 68.0, 65.0, 66.0, 67.0, 68.0],
     'NEl (Mkal)': [15.0, 16.0, 17.0, 18.0, 0.6, 0.7, 0.7, 0.8, 16.0, 17.0, 18.0, 19.0],
-    'RU, 19.0P (%)': [35.0, 37.0, 38.0, 40.0, 34.0, 36.0, 37.0, 39.0, 33.0, 35.0, 36.0, 38.0],
+    'RUP (%)': [35.0, 37.0, 38.0, 40.0, 34.0, 36.0, 37.0, 39.0, 33.0, 35.0, 36.0, 38.0],
     'RDP (%)': [65.0, 63.0, 62.0, 60.0, 66.0, 64.0, 63.0, 61.0, 67.0, 65.0, 64.0, 62.0]
 }
 
-# Convert data dictionary to DataFrame
 df = pd.DataFrame(data)
 
-# Read bahan pakan data (feed ingredients) from CSV file or use fallback data if CSV not found
-try:
-    bahan_pakan_df = pd.read_csv("BahanPakan.csv", encoding='utf-8')  # Try utf-8 first
-except (FileNotFoundError, UnicodeDecodeError):
-    try:
-        # If utf-8 fails, try another common encoding
-        bahan_pakan_df = pd.read_csv("BahanPakan.csv", encoding='latin1')
-    except (FileNotFoundError, UnicodeDecodeError):
-        st.error("File BahanPakan.csv tidak ditemukan atau memiliki format yang tidak valid.")
-        # Provide fallback data in case the CSV is not found or has encoding issues
-        bahan_pakan_data = {
-            'Nama Bahan': ['Rumput Gajah', 'Rumput Odot', 'Jerami Padi', 'Tebon Jagung', 'Dedak Padi', 'Bungkil Kedelai', 'Ampas Tahu', 'Onggok', 'Jagung', 'Bekatul'],
-            'BK (%)': [21.0, 18.0, 86.0, 35.0, 86.0, 86.0, 13.6, 85.0, 88.0, 90.0],
-            'PK (%BK)': [10.2, 12.7, 4.3, 8.0, 12.9, 45.0, 23.5, 2.3, 9.0, 12.0],
-            'SK (%BK)': [34.2, 30.0, 32.5, 25.0, 11.4, 6.0, 21.1, 8.5, 2.0, 10.0],
-            'NDF (%BK)': [73.4, 68.0, 73.0, 65.0, 33.0, 21.0, 51.0, 31.0, 10.0, 40.0],
-            'ADF (%BK)': [46.3, 41.0, 50.0, 35.0, 18.0, 9.0, 25.0, 14.0, 3.0, 20.0],
-            'Ca (g)': [0.4, 0.5, 0.2, 0.3, 0.1, 0.3, 0.9, 0.1, 0.02, 0.1],
-            'P (g)': [0.3, 0.35, 0.16, 0.2, 1.3, 0.65, 0.3, 0.1, 0.27, 1.14],
-            'PDIA (g)': [15, 18, 8, 12, 20, 120, 40, 5, 10, 15],
-            'PDI (g)': [70, 80, 35, 50, 85, 300, 150, 25, 40, 50],
-            'ME (kkal)': [2100, 2200, 1600, 2000, 2800, 3200, 2300, 2900, 3300, 2700],
-            'NEl (kkal)': [1300, 1350, 950, 1200, 1700, 1950, 1400, 1750, 2000, 1600],
-            'TDN (%)': [54, 56, 40, 52, 70, 78, 64, 72, 80, 65],
-            'NEl (Mkal)': [1.3, 1.35, 0.95, 1.2, 1.7, 1.95, 1.4, 1.75, 2.0, 1.6],
-            'RUP (%)': [20, 21, 25, 22, 30, 65, 40, 18, 35, 25],
-            'RDP (%)': [80, 79, 75, 78, 70, 35, 60, 82, 65, 75],
-            'Harga (Rp/kg)': [500, 600, 300, 450, 2500, 8000, 1500, 2000, 4000, 2800]
-        }
+# Bahan pakan data definition
+bahan_pakan_data = {
+    'Nama Bahan': [
+        'Biji barley (Hordeum vulgare L.)',
+        'Biji jagung (Zea mays L.)',
+        'Bungkil jagung—proses ekstrusi',
+        'Bungkil jagung—proses pengepresan',
+        'Bungkil jagung berkadar air tinggi',
+        'Biji millet Mutiara',
+        'Biji millet proso',
+        'Gandum',
+        'Biji gandum',
+        'Bungkil biji gandum—proses pengepresan',
+        'Bekatul',
+        'Dedak',
+        'Menir beras',
+        'Biji gandum hitam',
+        'Biji sorgum',
+        'Biji triticale',
+        'Biji gandum durum',
+        'Biji gandum lunak',
+        'Corn gluten feed',
+        'Corn gluten meal',
+        'Bungkil kelapa',
+        'Bungkil inti sawit',
+        'Bungkil kedelai',
+        'Kleci, kulit biji kedelai',
+        'Rumput Gajah',
+        'Rumput Odot',
+        'Rumput Raja', 
+        'Tebon Jagung',
+        'Tebon Jagung dengan Bijinya',
+        'Alfalfa Hay',
+        'Jerami Kacang Tanah'
+    ],
+    'BK (%)': [87.2, 86.3, 86.3, 86.3, 67, 89.6, 90.6, 85.7, 87.6, 87.6, 88, 88, 87.6, 86.7, 87.8, 86.8, 87.8, 86.9, 87.8, 90.9, 90.5, 90.6, 93.2, 88.9, 20, 25, 18, 30, 35, 88, 86],
+    'PK (%BK)': [11.3, 8.8, 8.8, 8.8, 9.2, 12.5, 14.2, 12.8, 10.8, 10.8, 10.5, 8.5, 9.2, 9.8, 10.6, 11.5, 16.4, 12.6, 21.6, 67.8, 23.4, 18.3, 47, 12.8, 8.05, 11, 9, 6, 9, 18, 12],
+    'SK (%BK)': [5.4, 2.6, 2.6, 2.6, 2.6, 3.2, 7.4, 4.5, 13.1, 13.1, 2.4, 11, 0.6, 2.3, 2.8, 2.9, 3, 2.7, 9, 1.5, 13.6, 20.7, 6.4, 39.1, 30, 28, 32, 35, 25, 30, 35],
+    'NDF (%BK)': [21.5, 12.4, 12.4, 12.4, 12.4, 17.2, 23.2, 12.8, 35.7, 35.7, 7.5, 26.4, 5.7, 14.8, 11.1, 15, 15.9, 14.7, 39.9, 4, 53.6, 72.9, 13.6, 65.3, 65, 60, 68, 70, 55, 42, 60],
+    'ADF (%BK)': [6.5, 3.1, 3.1, 3.1, 3.1, 4.5, 12, 5.3, 16.3, 16.3, 2.9, 13.5, 1.8, 3.3, 4.3, 3.8, 4.2, 3.8, 10.6, 1.4, 27.5, 44, 8, 46.5, 35, 32, 38, 40, 30, 32, 38],
+    'Ca (g)': [0.8, 0.5, 0.5, 0.5, 0.5, 0.5, 0.4, 1, 1.1, 1.1, 0.5, 0.7, 0.4, 0.7, 0.3, 0.7, 0.8, 0.7, 1.6, 0.3, 1, 3, 3.7, 5.6, 4.5, 5.0, 4.2, 3.8, 4.0, 15.0, 7.0],
+    'P (g)': [3.9, 2.9, 2.9, 2.9, 3.1, 3.3, 3, 3.4, 3.6, 3.6, 3.6, 2.8, 2.4, 3.5, 3.5, 3.8, 3.9, 3.6, 9.8, 4.1, 5.8, 6.1, 6.9, 1.7, 2.8, 3.0, 2.5, 2.2, 2.5, 2.8, 3.5],
+    'PDIA (g)': [30, 42, 52, 52, 24, 56, 26, 25, 20, 24, 28, 20, 25, 20, 47, 24, 36, 28, 53, 424, 99, 79, 154, 38, 20, 22, 19, 15, 25, 40, 30],
+    'PDI (g)': [87, 95, 108, 111, 80, 108, 86, 83, 73, 77, 80, 66, 81, 81, 98, 85, 96, 89, 109, 471, 152, 129, 208, 95, 60, 65, 58, 50, 70, 95, 80],
+    'ME (kkal)': [2960, 3340, 3340, 3340, 3320, 3400, 3440, 3080, 2740, 2740, 3160, 2400, 3200, 3120, 3180, 3100, 3160, 3130, 2980, 4450, 2750, 2390, 3580, 2830, 2000, 2200, 1900, 1800, 2500, 2700, 2300],
+    'NEl (kkal)': [1950, 2270, 2270, 2270, 2260, 2310, 2330, 2040, 1750, 1750, 2120, 1520, 2170, 2100, 2130, 2080, 2120, 2110, 1960, 3050, 1770, 1500, 2400, 1860, 1200, 1300, 1100, 1000, 1400, 1500, 1300],
+    'TDN (%)': [82.2, 89.3, 89.3, 89.3, 88.9, 86.1, 82.9, 85.6, 79.6, 79.6, 88.6, 72.5, 89.4, 84.4, 87.3, 84.1, 84.3, 84.5, 75.3, 94.1, 67, 48.1, 89, 67, 55, 58, 52, 50, 65, 70, 60],
+    'NEl (Mkal)': [1.84, 2.02, 2.1, 2.1, 2.01, 1.98, 1.91, 1.95, 1.78, 1.78, 2.01, 1.55, 2.02, 1.89, 1.97, 1.9, 1.95, 1.92, 1.74, 2.7, 1.53, 0.97, 2.41, 1.44, 1.02, 1.03, 1.01, 1.00, 1.04, 1.05, 1.03],
+    'RUP (%)': [27, 53, 49, 85, 25, 57, 18, 18, 18, 20, 28, 28, 28, 21, 57, 20, 22, 22, 25, 70, 47, 54, 34, 43, 20, 22, 18, 15, 25, 30, 25],
+    'RDP (%)': [73, 47, 51, 15, 75, 43, 82, 82, 82, 80, 72, 72, 72, 79, 43, 80, 78, 78, 75, 30, 53, 46, 66, 57, 80, 78, 82, 85, 75, 70, 75],
+    'Harga (Rp/kg)': [4500, 4000, 4200, 4100, 3800, 4300, 4200, 4500, 4300, 4200, 3000, 2500, 3000, 4400, 4000, 4500, 4600, 4400, 5000, 7000, 3500, 3000, 8000, 2500, 1000, 1200, 1000, 800, 1000, 5000, 1500]
+}
 
-        bahan_pakan_df = pd.DataFrame(bahan_pakan_data)
+# Create DataFrame
+bahan_pakan_df = pd.DataFrame(bahan_pakan_data)
 
 # Define helper functions
 def hitung_kebutuhan(berat_badan, produksi_susu):
@@ -233,29 +254,6 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
     
-    # Add button to show all available feed ingredients
-    if st.button("📋 Tampilkan Semua Bahan Pakan yang Tersedia", use_container_width=True):
-        st.markdown("""
-        <div style="background-color: #f5f5f5; border-radius: 10px; padding: 1px 20px 10px 20px; margin: 15px 0;">
-            <h4 style="color: #2e7d32; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">✅ Daftar Lengkap Bahan Pakan</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Display all feed ingredients in a table with key nutritional information
-        st.dataframe(
-            bahan_pakan_df[['Nama Bahan', 'BK (%)', 'PK (%BK)', 'TDN (%)', 'SK (%BK)', 'NDF (%BK)', 'Harga (Rp/kg)']],
-            use_container_width=True,
-            column_config={
-                "Nama Bahan": "Nama Bahan Pakan",
-                "BK (%)": "Bahan Kering (%)",
-                "PK (%BK)": "Protein Kasar (%BK)",
-                "TDN (%)": "Total Digestible Nutrients (%)",
-                "SK (%BK)": "Serat Kasar (%BK)",
-                "NDF (%BK)": "Neutral Detergent Fiber (%BK)",
-                "Harga (Rp/kg)": st.column_config.NumberColumn("Harga (Rp/kg)", format="Rp %d")
-            }
-        )
-    
     # Add search and filter functionality
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -286,48 +284,23 @@ with tab2:
     # Add quick pick buttons for common combinations
     st.markdown("#### Rekomendasi Kombinasi Cepat:")
     quick_pick_cols = st.columns(3)
-    
-    # Define quick pick combinations
-    basic_combo = ['Rumput Gajah', 'Dedak Padi', 'Bungkil Kedelai']
-    lactation_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Jagung', 'Bekatul']
-    economic_combo = ['Rumput Gajah', 'Dedak Padi', 'Tebon Jagung']
-    high_production_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Jagung', 'Bekatul']
-    medium_production_combo = ['Rumput Gajah', 'Dedak Padi', 'Bungkil Kedelai', 'Ampas Tahu']
-    low_production_combo = ['Jerami Padi', 'Dedak Padi', 'Ampas Tahu']
-    
     with quick_pick_cols[0]:
-        if st.button("🐄 Kombinasi Dasar", use_container_width=True, help="Rumput Gajah, Dedak Padi, Bungkil Kedelai"):
-            # Check which feeds from the desired combo actually exist in the dataframe
-            available_feeds = [feed for feed in basic_combo if feed in bahan_pakan_df['Nama Bahan'].tolist()]
-            st.session_state['selected_feeds'] = available_feeds
-            st.rerun()
+        if st.button("🐄 Kombinasi Dasar", use_container_width=True):
+            selected_feeds = ['Rumput Gajah', 'Dedak', 'Bungkil kedelai']
     with quick_pick_cols[1]:
-        if st.button("🥛 Laktasi Tinggi", use_container_width=True, help="Rumput Odot, Bungkil Kedelai, Jagung, Bekatul"):
-            available_feeds = [feed for feed in high_production_combo if feed in bahan_pakan_df['Nama Bahan'].tolist()]
-            st.session_state['selected_feeds'] = available_feeds
-            st.rerun()
+        if st.button("🥛 Laktasi Tinggi", use_container_width=True):
+            selected_feeds = ['Rumput Odot', 'Bungkil kedelai', 'Biji jagung (Zea mays L.)', 'Bekatul']
     with quick_pick_cols[2]:
-        if st.button("💰 Ekonomis", use_container_width=True, help="Rumput Gajah, Dedak Padi, Tebon Jagung"):
-            available_feeds = [feed for feed in economic_combo if feed in bahan_pakan_df['Nama Bahan'].tolist()]
-            st.session_state['selected_feeds'] = available_feeds
-            st.rerun()
+        if st.button("💰 Ekonomis", use_container_width=True):
+            selected_feeds = ['Rumput Gajah', 'Dedak', 'Tebon Jagung']
     
-    # Improved feed selection interface using session state
-    if 'selected_feeds' not in st.session_state:
-        st.session_state['selected_feeds'] = []
-    
-    # Filter the selected_feeds to only include items that exist in filtered_feeds
-    valid_selected_feeds = [feed for feed in st.session_state['selected_feeds'] if feed in filtered_feeds]
-    
+    # Improved feed selection interface
     selected_feeds = st.multiselect(
         '📋 Pilih Bahan Pakan:',
         filtered_feeds,
-        default=valid_selected_feeds,
+        default=selected_feeds if 'selected_feeds' in locals() else [],
         help="Pilih minimal satu hijauan dan satu konsentrat"
     )
-    
-    # Update session state with current selection
-    st.session_state['selected_feeds'] = selected_feeds
     
     # Initialize total_proportion
     total_proportion = 0
@@ -476,86 +449,90 @@ with tab3:
                 analysis_data['Nutrisi'].append(nutrient)
                 analysis_data['Kandungan'].append(f"{value:.2f}")
                 analysis_data['Kebutuhan'].append(f"{req:.2f}")
-                analysis_data['Perbedaan (%)'].append(f"{diff_percent:.1f}")
                 
-                # Determine status based on difference percentage
+                # Determine status with tolerance level
                 if abs(diff_percent) <= 10:
-                    analysis_data['Status'].append("✅ Seimbang")
-                elif diff_percent > 10:
-                    analysis_data['Status'].append("⚠️ Berlebih")
+                    status = "✅ Sesuai"
+                elif diff_percent > 0:
+                    status = "⚠️ Berlebih"
                 else:
-                    analysis_data['Status'].append("❌ Kurang")
+                    status = "❌ Kurang"
+                
+                analysis_data['Status'].append(status)
+                analysis_data['Perbedaan (%)'].append(f"{diff_percent:+.1f}")
         
-        # Create analysis DataFrame
-        analysis_df = pd.DataFrame(analysis_data)
-        
-        # Define status styling function
-        def style_status(val):
-            if "✅" in val:
-                return 'background-color: #c8e6c9'
-            elif "⚠️" in val:
-                return 'background-color: #fff9c4'
-            elif "❌" in val:
-                return 'background-color: #FFB6C1'
-            return ''
+        # Only continue if we have analysis data
+        if analysis_data['Nutrisi']:
+            # Convert to DataFrame
+            analysis_df = pd.DataFrame(analysis_data)
             
-        # Display styled analysis table
-        styled_df = analysis_df.style.apply(lambda x: [''] * len(x) if x.name != 'Status' 
-                                          else [style_status(v) for v in x], axis=0)
-        st.dataframe(styled_df, use_container_width=True)
-        
-        # Calculate summary statistics
-        total_nutrients = len(analysis_df)
-        balanced = sum(analysis_df['Status'].str.contains('✅'))
-        excess = sum(analysis_df['Status'].str.contains('⚠️'))
-        deficient = sum(analysis_df['Status'].str.contains('❌'))
-        
-        # Display summary metrics
-        st.markdown("### Ringkasan Keseimbangan Nutrisi")
-        metric_cols = st.columns(4)
-        
-        with metric_cols[0]:
-            st.metric("Total Nutrisi", total_nutrients)
-        with metric_cols[1]:
-            st.metric("Seimbang", f"{balanced} ({balanced/total_nutrients*100:.1f}%)")
-        with metric_cols[2]:
-            st.metric("Berlebih", f"{excess} ({excess/total_nutrients*100:.1f}%)")
-        with metric_cols[3]:
-            st.metric("Kurang", f"{deficient} ({deficient/total_nutrients*100:.1f}%)")
-        
-        # Create visualization of nutrient status
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        # Prepare data for visualization
-        nutrients = analysis_df['Nutrisi']
-        differences = analysis_df['Perbedaan (%)'].astype(float)
-        
-        # Create bar chart
-        bars = ax.bar(range(len(nutrients)), differences)
-        
-        # Color code bars
-        for i, diff in enumerate(differences):
-            if abs(diff) <= 10:
-                bars[i].set_color('green')
-            elif diff > 0:
-                bars[i].set_color('gold')
-            else:
-                bars[i].set_color('red')
-        
-        # Customize chart
-        ax.set_xticks(range(len(nutrients)))
-        ax.set_xticklabels(nutrients, rotation=45, ha='right')
-        ax.set_ylabel('Perbedaan dari Kebutuhan (%)')
-        ax.set_title('Analisis Keseimbangan Nutrisi')
-        ax.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        ax.axhspan(-10, 10, color='green', alpha=0.1)
-        
-        # Add grid for better readability
-        ax.grid(True, axis='y', linestyle='--', alpha=0.3)
-        
-        # Adjust layout and display
-        plt.tight_layout()
-        st.pyplot(fig)
+            # Apply styling for better visualization
+            def style_status(val):
+                if '✅' in val:
+                    return 'background-color: #90EE90'
+                elif '⚠️' in val:
+                    return 'background-color: #FFD700'
+                elif '❌' in val:
+                    return 'background-color: #FFB6C1'
+                return ''
+            
+            # Display styled analysis table
+            styled_df = analysis_df.style.apply(lambda x: [''] * len(x) if x.name != 'Status' 
+                                              else [style_status(v) for v in x], axis=0)
+            st.dataframe(styled_df, use_container_width=True)
+            
+            # Calculate summary statistics
+            total_nutrients = len(analysis_df)
+            balanced = sum(analysis_df['Status'].str.contains('✅'))
+            excess = sum(analysis_df['Status'].str.contains('⚠️'))
+            deficient = sum(analysis_df['Status'].str.contains('❌'))
+            
+            # Display summary metrics
+            st.markdown("### Ringkasan Keseimbangan Nutrisi")
+            metric_cols = st.columns(4)
+            
+            with metric_cols[0]:
+                st.metric("Total Nutrisi", total_nutrients)
+            with metric_cols[1]:
+                st.metric("Seimbang", f"{balanced} ({balanced/total_nutrients*100:.1f}%)")
+            with metric_cols[2]:
+                st.metric("Berlebih", f"{excess} ({excess/total_nutrients*100:.1f}%)")
+            with metric_cols[3]:
+                st.metric("Kurang", f"{deficient} ({deficient/total_nutrients*100:.1f}%)")
+            
+            # Create visualization of nutrient status
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            # Prepare data for visualization
+            nutrients = analysis_df['Nutrisi']
+            differences = analysis_df['Perbedaan (%)'].astype(float)
+            
+            # Create bar chart
+            bars = ax.bar(range(len(nutrients)), differences)
+            
+            # Color code bars
+            for i, diff in enumerate(differences):
+                if abs(diff) <= 10:
+                    bars[i].set_color('green')
+                elif diff > 0:
+                    bars[i].set_color('gold')
+                else:
+                    bars[i].set_color('red')
+            
+            # Customize chart
+            ax.set_xticks(range(len(nutrients)))
+            ax.set_xticklabels(nutrients, rotation=45, ha='right')
+            ax.set_ylabel('Perbedaan dari Kebutuhan (%)')
+            ax.set_title('Analisis Keseimbangan Nutrisi')
+            ax.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+            ax.axhspan(-10, 10, color='green', alpha=0.1)
+            
+            # Add grid for better readability
+            ax.grid(True, axis='y', linestyle='--', alpha=0.3)
+            
+            # Adjust layout and display
+            plt.tight_layout()
+            st.pyplot(fig)
     
 
 # Replace the "Saran Optimasi" section with this improved version
@@ -608,7 +585,7 @@ if total_proportion == 100:
                 for nutrient, diff in deficient_nutrients:
                     st.markdown(f"""
                     <div style="background-color: white; padding: 12px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ffcdd2;">
-                        <p style="font-weight: 600; margin-bottom: 5px; color: black;">{nutrient}: kurang {diff:.1f}%</p>
+                        <p style="font-weight: 600; margin-bottom: 5px; color: #d32f2f;">{nutrient}: kurang {diff:.1f}%</p>
                     </div>
                     """, unsafe_allow_html=True)
                     
@@ -703,16 +680,13 @@ if total_proportion == 100:
         
         # Display balance score with nice styling
         st.markdown(f"""
-        <div style="background-color: #white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; color: black;">
+        <div style="background-color: #white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
             <h5 style="margin-top: 0; margin-bottom: 5px; color: #1b5e20;">Skor Keseimbangan Ransum</h5>
             <div style="font-size: 28px; font-weight: 700; color: {'#2e7d32' if balance_score >= 70 else '#ff8f00' if balance_score >= 50 else '#c62828'}; margin: 5px 0;">
-            {balance_score:.1f}%
+                {balance_score:.1f}%
             </div>
             <div style="font-size: 14px; color: #555;">
-            {'Sangat Baik (>70%)' if balance_score >= 70 else 'Sedang (50-70%)' if balance_score >= 50 else 'Perlu Perbaikan (<50%)'}
-            </div>
-            <div style="font-size: 13px; margin-top: 8px; padding: 8px; background-color: #f1f8e9; border-left: 3px solid #7cb342; border-radius: 4px;">
-        <b>Rekomendasi:</b> Untuk memastikan kesehatan dan produktivitas optimal sapi perah, pertahankan Skor Keseimbangan Ransum <b>minimal 50%</b>. Skor di bawah 50% mengindikasikan ketidakseimbangan nutrisi yang signifikan dan dapat berdampak negatif pada produksi susu dan kesehatan sapi.
+                {'Sangat Baik (>70%)' if balance_score >= 70 else 'Sedang (50-70%)' if balance_score >= 50 else 'Perlu Perbaikan (<50%)'}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -938,11 +912,7 @@ st.markdown("""
 current_year = datetime.datetime.now().year
 
 st.markdown(f"""
-<hr style="height:1px;border:none;color:#333;background-color:#333;margin-top:30px;margin-bottom:20px">
 <div style="text-align:center; padding:15px; margin-top:10px; margin-bottom:20px">
-    <p style="font-size:14px; color:#777">
-        Research by Prof. Dr. Ir. Budi Prasetyo Widyobroto, DESS., DEA., IPU., ASEAN Eng.
-    </p>
     <p style="font-size:16px; color:#555">
         © {current_year} Developed by: 
         <a href="https://www.linkedin.com/in/galuh-adi-insani-1aa0a5105/" target="_blank" 
