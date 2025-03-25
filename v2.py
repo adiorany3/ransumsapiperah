@@ -289,9 +289,9 @@ with tab2:
     
     # Define quick pick combinations
     basic_combo = ['Rumput Gajah', 'Dedak Padi', 'Bungkil Kedelai']
-    lactation_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Jagung', 'Bekatul']
+    lactation_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Biji jagung (Zea mays L.)', 'Bekatul']
     economic_combo = ['Rumput Gajah', 'Dedak Padi', 'Tebon Jagung']
-    high_production_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Jagung', 'Bekatul']
+    high_production_combo = ['Rumput Odot', 'Bungkil Kedelai', 'Biji jagung (Zea mays L.)', 'Bekatul']
     medium_production_combo = ['Rumput Gajah', 'Dedak Padi', 'Bungkil Kedelai', 'Ampas Tahu']
     low_production_combo = ['Jerami Padi', 'Dedak Padi', 'Ampas Tahu']
     
@@ -302,7 +302,7 @@ with tab2:
             st.session_state['selected_feeds'] = available_feeds
             st.rerun()
     with quick_pick_cols[1]:
-        if st.button("🥛 Laktasi Tinggi", use_container_width=True, help="Rumput Odot, Bungkil Kedelai, Jagung, Bekatul"):
+        if st.button("🥛 Laktasi Tinggi", use_container_width=True, help="Rumput Odot, Bungkil Kedelai, Biji jagung (Zea mays L.), Bekatul"):
             available_feeds = [feed for feed in high_production_combo if feed in bahan_pakan_df['Nama Bahan'].tolist()]
             st.session_state['selected_feeds'] = available_feeds
             st.rerun()
