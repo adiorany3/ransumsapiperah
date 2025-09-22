@@ -249,7 +249,7 @@ else:
 
 Run the application with `streamlit run RansumPerah.py` after making these changes.
 
-yancewulandari5: Bahan pakan ada di sheet dengan nama 'BahanPakan' dalam file DataRansumSapiPerah.xlsx
+Perubahan : Bahan pakan ada di sheet dengan nama 'BahanPakan' dalam file DataRansumSapiPerah.xlsx
 
 GitHub Copilot: # Reading Feed Data from Specific Excel Sheet
 
