@@ -1,3 +1,5 @@
+Demo : https://ransumruminansia.streamlit.app/
+
 Perbaikan : Lakukan proses optimalisasi dari Ransum Sapi perah berdasarkan Data DataRansumSapiPerah.xlsx
 
 Workspace: Collecting workspace information# Optimizing Dairy Cattle Feed Formulation
